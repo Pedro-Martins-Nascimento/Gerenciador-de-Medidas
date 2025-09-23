@@ -1,0 +1,14 @@
+/* Fonte base */
+body {
+  font-family: 'Manrope', sans-serif;
+}
+
+/* Transições suaves globais */
+button, input, select {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Estado vazio */
+#emptyState {
+  font-style: italic;
+}
