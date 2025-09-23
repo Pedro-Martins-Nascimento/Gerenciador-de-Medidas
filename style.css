@@ -1,14 +1,9 @@
-/* Fonte base */
+/* Pequenos ajustes visuais */
 body {
   font-family: 'Manrope', sans-serif;
+  transition: background 0.3s, color 0.3s;
 }
 
-/* Transições suaves globais */
-button, input, select {
+button {
   transition: all 0.2s ease-in-out;
-}
-
-/* Estado vazio */
-#emptyState {
-  font-style: italic;
 }
