@@ -54,12 +54,13 @@ class MedidaView {
     this.form = document.getElementById("measurement-form");
     this.tableBody = document.getElementById("measurement-table-body");
     this.emptyState = document.getElementById("empty-state");
-    this.filterName = document.getElementById("filter-name");
-    this.filterValue = document.getElementById("filter-value");
-    this.filterUnit = document.getElementById("filter-unit");
-    this.clearBtn = document.getElementById("clear-filters-btn");
-    this.themeToggle = document.getElementById("theme-toggle");
-    this.htmlElement = document.documentElement;
+  this.filtersSection = document.getElementById("filters-section");
+  this.filterName = document.getElementById("filter-name");
+  this.filterValue = document.getElementById("filter-value");
+  this.filterUnit = document.getElementById("filter-unit");
+  this.clearBtn = document.getElementById("clear-filters-btn");
+  this.themeToggle = document.getElementById("theme-toggle");
+  this.htmlElement = document.documentElement;
 
     // Eventos
     this.form.addEventListener("submit", e => this.handleSubmit(e));
@@ -88,11 +89,24 @@ class MedidaView {
   render(medidas) {
     this.tableBody.innerHTML = "";
 
-    if (medidas.length === 0) {
+    // Sempre mostrar a tabela, mesmo se não houver resultados filtrados
+    if (this.filtersSection) this.filtersSection.classList.remove("hidden");
+
+    if (this.controller.medidas.length === 0) {
+      // Nenhuma medida cadastrada de verdade
       this.emptyState.classList.remove("hidden");
+      this.filtersSection.classList.add("hidden");
       return;
     } else {
       this.emptyState.classList.add("hidden");
+    }
+
+    if (medidas.length === 0) {
+      // Nenhum resultado filtrado, mas há medidas cadastradas
+      const row = document.createElement("tr");
+      row.innerHTML = `<td colspan="4" class="p-4 text-center text-subtle-light dark:text-subtle-dark">Nenhum resultado encontrado.</td>`;
+      this.tableBody.appendChild(row);
+      return;
     }
 
     medidas.forEach((m, index) => {
