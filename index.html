@@ -90,17 +90,6 @@
   </div>
 </header>
 
-
-
-
-
-
-
-
-
-
-
-  
   <!-- Main -->
   <main class="w-full max-w-3xl bg-surface-light dark:bg-surface-dark rounded-xl shadow p-6 sm:p-8 relative z-10">
 
@@ -108,9 +97,6 @@
     
     <!-- Mensagem -->
     <div id="form-message" class="hidden mb-4 p-3 rounded transition-all duration-300 text-center font-medium"></div>
-
-
-
 
     <!-- Formulário -->
     <section class="mb-6">
@@ -171,19 +157,20 @@
     </div>
 
     <!-- Tabela responsiva -->
-    <div id="table-container" class="hidden overflow-x-auto max-h-[400px] sm:max-h-[600px] overflow-y-auto">
+    <div id="table-container" class="hidden overflow-x-auto max-h-[400px] overflow-y-auto">
       <table class="w-full text-left min-w-[300px] sm:min-w-full">
-        <thead>
+        <thead class="bg-surface-light dark:bg-surface-dark sticky top-0 z-10">
           <tr>
             <th class="p-2 text-sm sm:text-base font-semibold uppercase text-center">Nome</th>
             <th class="p-2 text-sm sm:text-base font-semibold uppercase text-center">Valor</th>
             <th class="p-2 text-sm sm:text-base font-semibold uppercase text-center">Unidade</th>
-            <th class="p-2 w-12 text-center"></th> <!-- célula do X -->
+            <th class="p-2 w-12 text-center"></th>
           </tr>
         </thead>
         <tbody id="measurement-table-body"></tbody>
       </table>
     </div>
+
 
   </main>
 
