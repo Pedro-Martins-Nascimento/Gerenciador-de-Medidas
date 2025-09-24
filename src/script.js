@@ -188,10 +188,20 @@ class MedidaView {
   }
 
   applyFilters() {
+    const nomeFiltro = this.filterName ? this.filterName.value.trim() : '';
+    const valorFiltro = this.filterValue ? this.filterValue.value : '';
+    const unidadeFiltro = this.filterUnit ? this.filterUnit.value : 'Todas';
+
+    // Se todos os filtros estiverem vazios ou padrão, mostra tudo
+    if (!nomeFiltro && !valorFiltro && (unidadeFiltro === 'Todas' || !unidadeFiltro)) {
+      this.render(this.controller.medidas);
+      return;
+    }
+
     const filtros = {
-      nome: this.filterName ? this.filterName.value.trim() : '',
-      valor: this.filterValue ? this.filterValue.value : '',
-      unidade: this.filterUnit ? this.filterUnit.value : 'Todas',
+      nome: nomeFiltro,
+      valor: valorFiltro,
+      unidade: unidadeFiltro,
     };
     const filtradas = this.controller.filtrar(filtros);
 
