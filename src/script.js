@@ -1,5 +1,3 @@
-// Aplicação MVC: Model (Medida), Controller, View
-
 // ===== MODEL =====
 class Medida {
   constructor(nome, valor, unidade) {
@@ -22,12 +20,14 @@ class MedidaController {
     this.medidas.push(medida);
     this.salvarMedidas();
     this.view.render(this.medidas);
+    this.view.showMessage("Medida adicionada com sucesso!", "success");
   }
 
   remover(index) {
     this.medidas.splice(index, 1);
     this.salvarMedidas();
     this.view.render(this.medidas);
+    this.view.showMessage("Medida removida.", "danger");
   }
 
   salvarMedidas() {
@@ -64,8 +64,10 @@ class MedidaView {
     this.filterValue = document.getElementById("filter-value");
     this.filterUnit = document.getElementById("filter-unit");
     this.clearBtn = document.getElementById("clear-filters-btn");
+    this.messageBox = document.getElementById("form-message");
 
-    // Background layers (para animação)
+
+    // Background layers
     this.bgLight = document.getElementById("bg-light");
     this.bgDark = document.getElementById("bg-dark");
 
@@ -83,43 +85,43 @@ class MedidaView {
     if (this.clearBtn) this.clearBtn.addEventListener("click", () => this.clearFilters());
     if (this.themeToggle) this.themeToggle.addEventListener("click", () => this.toggleTheme());
 
-    // Inicializa estado do toggle (posição + ícone) e backgrounds
     this.initThemeState();
   }
 
-  // configura estado inicial do tema e das camadas de fundo
+  showMessage(text, type="info") {
+    if (!this.messageBox) return;
+
+    const colors = {
+      success: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+      danger: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
+      info: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+    };
+
+    // reaplica classes base
+  this.messageBox.className = "mb-4 p-3 rounded transition-all duration-300 text-center font-medium";
+  colors[type].split(" ").forEach(cls => this.messageBox.classList.add(cls));
+    this.messageBox.textContent = text;
+    this.messageBox.classList.remove("hidden");
+
+    if (this.messageTimeout) clearTimeout(this.messageTimeout);
+    this.messageTimeout = setTimeout(() => {
+      this.messageBox.classList.add("hidden");
+    }, 3000);
+  }
+
+
+
   initThemeState() {
     const saved = localStorage.getItem('theme');
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     const isDark = (saved === 'dark') || (!saved && prefersDark) || this.htmlEl.classList.contains('dark');
     if (isDark) this.htmlEl.classList.add('dark'); else this.htmlEl.classList.remove('dark');
 
-    // define opacidades iniciais sem animar (coloca valores imediatamente)
-    this.bgLight.style.transition = 'none';
-    this.bgDark.style.transition = 'none';
-
-    if (isDark) {
-      this.bgLight.style.opacity = '0';
-      this.bgLight.style.transform = 'scale(1.02)';
-      this.bgDark.style.opacity = '1';
-      this.bgDark.style.transform = 'scale(1)';
-    } else {
-      this.bgLight.style.opacity = '1';
-      this.bgLight.style.transform = 'scale(1)';
-      this.bgDark.style.opacity = '0';
-      this.bgDark.style.transform = 'scale(1.02)';
-    }
-
-    // force reflow then re-enable transitions (prevents initial animation)
-    void this.bgLight.offsetWidth;
-    void this.bgDark.offsetWidth;
-    this.bgLight.style.transition = '';
-    this.bgDark.style.transition = '';
-
+    this.bgLight.style.opacity = isDark ? '0' : '1';
+    this.bgDark.style.opacity = isDark ? '1' : '0';
     this.updateToggleVisual(isDark, false);
   }
 
-  // atualiza visual do toggle (posição + ícone) e salva tema se persist=true
   updateToggleVisual(isDark, persist = true) {
     if (isDark) {
       this.toggleIndicator.classList.add('translate-x-6');
@@ -131,33 +133,14 @@ class MedidaView {
     if (persist) localStorage.setItem('theme', isDark ? 'dark' : 'light');
   }
 
-  // alterna tema com animação crossfade + parallax (ajusta opacidade e transform)
   toggleTheme() {
     const nowDark = !this.htmlEl.classList.contains('dark');
-
-    // aplicamos a classe dark imediatamente (isso afeta cores dos componentes)
     if (nowDark) this.htmlEl.classList.add('dark'); else this.htmlEl.classList.remove('dark');
-
-    // animação das camadas (crossfade)
-    if (nowDark) {
-      // light -> fade out, dark -> fade in
-      this.bgLight.style.opacity = '0';
-      this.bgLight.style.transform = 'scale(1.02)';
-      this.bgDark.style.opacity = '1';
-      this.bgDark.style.transform = 'scale(1)';
-    } else {
-      // dark -> fade out, light -> fade in
-      this.bgLight.style.opacity = '1';
-      this.bgLight.style.transform = 'scale(1)';
-      this.bgDark.style.opacity = '0';
-      this.bgDark.style.transform = 'scale(1.02)';
-    }
-
-    // atualiza o indicador do toggle e persiste escolha
+    this.bgLight.style.opacity = nowDark ? '0' : '1';
+    this.bgDark.style.opacity = nowDark ? '1' : '0';
     this.updateToggleVisual(nowDark, true);
   }
 
-  // manipula envio do formulário: valida + adiciona
   handleSubmit(e) {
     e.preventDefault();
     const nome = document.getElementById("measurement-name").value.trim();
@@ -165,29 +148,39 @@ class MedidaView {
     const unidade = document.getElementById("measurement-unit").value;
 
     if (!nome || !valor) {
-      alert("Por favor, preencha todos os campos.");
+      this.showMessage("Preencha todos os campos!", "danger");
       return;
     }
 
-    this.controller.adicionar(new Medida(nome, valor, unidade));
+    // Limite 15 caracteres, apenas letras no nome
+    const nomeRegex = /^[A-Za-zÀ-ú ]{1,15}$/;
+    if (!nomeRegex.test(nome)) {
+      this.showMessage("Nome inválido! Apenas letras (máx. 15).", "danger");
+      return;
+    }
+
+    // Valor numérico
+    const valorNum = parseFloat(valor);
+    if (isNaN(valorNum)) {
+      this.showMessage("Valor inválido! Digite apenas números.", "danger");
+      return;
+    }
+
+    this.controller.adicionar(new Medida(nome, valorNum, unidade));
     this.form.reset();
   }
 
-  // renderiza lista (recebe array de medidas)
   render(medidas) {
     this.tableBody.innerHTML = "";
 
     if (!medidas || medidas.length === 0) {
-      // sem medidas: mostra mensagem, esconde filtros e tabela
       this.emptyState.classList.remove("hidden");
       this.filtersSection.classList.add("hidden");
       this.tableContainer.classList.add("hidden");
-      // resetar texto padrão
       this.emptyState.querySelector('p').textContent = 'Nenhuma medida cadastrada ainda.';
       return;
     }
 
-    // há medidas: mostra filtros e tabela e esconde mensagem
     this.emptyState.classList.add("hidden");
     this.filtersSection.classList.remove("hidden");
     this.tableContainer.classList.remove("hidden");
@@ -196,22 +189,20 @@ class MedidaView {
       const row = document.createElement("tr");
       row.classList.add("border-t", "border-border-light", "dark:border-border-dark");
       row.innerHTML = `
-        <td class="p-3">${m.nome}</td>
-        <td class="p-3">${m.valor}</td>
-        <td class="p-3">${m.unidade}</td>
-        <td class="p-3 text-right">
-          <button class="bg-danger text-white px-3 py-1 rounded-lg hover:bg-red-700 transition" data-index="${index}">
-            Remover
+        <td class="p-2 sm:p-3 text-center">${m.nome}</td>
+        <td class="p-2 sm:p-3 text-center">${m.valor}</td>
+        <td class="p-2 sm:p-3 text-center">${m.unidade}</td>
+        <td class="p-2 sm:p-3 text-center w-12">
+          <button class="bg-danger text-white px-2 py-1 rounded-md hover:bg-red-700 transition font-bold uppercase text-sm sm:text-base" data-index="${index}">
+            X
           </button>
         </td>
       `;
-      // evento remover
       row.querySelector("button").addEventListener("click", () => this.controller.remover(index));
       this.tableBody.appendChild(row);
     });
   }
 
-  // aplica filtros e trata caso "nenhuma medida encontrada"
   applyFilters() {
     const filtros = {
       nome: this.filterName ? this.filterName.value : '',
@@ -221,14 +212,12 @@ class MedidaView {
     const filtradas = this.controller.filtrar(filtros);
 
     if (filtradas.length === 0) {
-      // sem resultados: mantém cabeçalho da tabela visível + mostra mensagem "Nenhuma medida encontrada."
       this.tableBody.innerHTML = "";
       this.tableContainer.classList.remove("hidden");
       this.emptyState.classList.remove("hidden");
       this.emptyState.querySelector('p').textContent = 'Nenhuma medida encontrada.';
       return;
     } else {
-      // restaurar texto padrão e renderizar
       this.emptyState.classList.add("hidden");
       this.emptyState.querySelector('p').textContent = 'Nenhuma medida cadastrada ainda.';
     }
@@ -236,7 +225,6 @@ class MedidaView {
     this.render(filtradas);
   }
 
-  // limpa filtros
   clearFilters() {
     if (this.filterName) this.filterName.value = "";
     if (this.filterValue) this.filterValue.value = "";
@@ -247,8 +235,5 @@ class MedidaView {
 
 // ===== APP INIT =====
 document.addEventListener("DOMContentLoaded", () => {
-  const app = new MedidaController();
-
-  // expõe toggleTheme para o botão (usado caso queira ligar manualmente)
-  // document.getElementById('theme-toggle').addEventListener('click', () => app.view.toggleTheme());
+  new MedidaController();
 });

@@ -1,28 +1,14 @@
-/* Fonte base */
+/* ===== Fonte base ===== */
 body {
   font-family: 'Syne', 'Work Sans', 'Montserrat', sans-serif;
   margin: 0;
   padding: 0;
   min-height: 100vh;
   color: #111827;
-  transition: background 5s ease-in-out, color 0.3s ease-in-out;
+  transition: background 0.5s ease-in-out, color 0.3s ease-in-out;
 }
 
-/* Gradiente claro */
-body {
-  background: #e0eafc;  /* fallback */
-  background: -webkit-linear-gradient(to right, #e0eafc, #cfdef3);
-  background: linear-gradient(to right, #e0eafc, #cfdef3);
-}
-
-/* Gradiente escuro */
-.dark body {
-  background: #0f0c29;  /* fallback */
-  background: -webkit-linear-gradient(to right, #24243e, #302b63, #0f0c29);
-  background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
-}
-
-/* Inputs e botões herdando fonte */
+/* ===== Inputs e botões ===== */
 input, select, button {
   font-family: inherit;
 }
@@ -30,4 +16,100 @@ input, select, button {
 /* Botões com transição */
 button {
   transition: all 0.2s ease-in-out;
+}
+
+/* ===== Scrollbar customizada ===== */
+#table-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+#table-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#table-container::-webkit-scrollbar-thumb {
+  background-color: #6c5ce7; /* cor primary */
+  border-radius: 4px;
+}
+
+#table-container::-webkit-scrollbar-thumb:hover {
+  background-color: #4e3dc9;
+}
+
+/* Firefox */
+#table-container {
+  scrollbar-width: thin;
+  scrollbar-color: #6c5ce7 transparent;
+}
+
+/* ===== Mensagens ===== */
+#form-message {
+  transition: all 0.3s ease-in-out;
+  font-weight: 500;
+}
+
+/* ===== Responsividade da tabela ===== */
+#table-container {
+  overflow-x: auto;
+  max-height: 60vh; /* limita altura máxima */
+}
+
+/* Small screens: ajusta a tabela */
+@media (max-width: 640px) {
+  table {
+    font-size: 0.85rem;
+  }
+
+  #table-container {
+    max-height: 50vh;
+  }
+
+  #table-container td, #table-container th {
+    padding: 0.25rem 0.5rem;
+  }
+
+  #table-container button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  #theme-toggle {
+    width: 3.5rem;  /* 14 * 0.25rem */
+    height: 2rem;   /* 8 * 0.25rem */
+    padding: 0;
+    flex-shrink: 0;
+    position: relative;
+    }
+
+    /* Indicador do botão */
+    #toggle-indicator {
+    width: 1.5rem;   /* tamanho do círculo */
+    height: 1.5rem;
+    top: 0.250rem;   /* posição vertical dentro do botão */
+    left: 0.250rem;  /* posição horizontal inicial */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease-in-out, background-color 0.3s ease;
+    }
+
+    #toggle-icon {
+    font-size: 0.75rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    }
+
+    /* Em modo dark, slide para direita */
+    .dark #toggle-indicator {
+    transform: translateX(1.5rem); /* distancia igual à largura do indicador + padding */
+    }
+}
+
+@media (min-width: 1024px) {
+  #toggle-icon {
+    font-size: 0.95rem;
+  }
 }
