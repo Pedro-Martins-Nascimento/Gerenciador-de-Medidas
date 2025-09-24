@@ -54,13 +54,13 @@ class MedidaView {
     this.form = document.getElementById("measurement-form");
     this.tableBody = document.getElementById("measurement-table-body");
     this.emptyState = document.getElementById("empty-state");
-  this.filtersSection = document.getElementById("filters-section");
-  this.filterName = document.getElementById("filter-name");
-  this.filterValue = document.getElementById("filter-value");
-  this.filterUnit = document.getElementById("filter-unit");
-  this.clearBtn = document.getElementById("clear-filters-btn");
-  this.themeToggle = document.getElementById("theme-toggle");
-  this.htmlElement = document.documentElement;
+    this.filtersSection = document.getElementById("filters-section");
+    this.filterName = document.getElementById("filter-name");
+    this.filterValue = document.getElementById("filter-value");
+    this.filterUnit = document.getElementById("filter-unit");
+    this.clearBtn = document.getElementById("clear-filters-btn");
+    this.themeToggle = document.getElementById("theme-toggle");
+    this.htmlElement = document.documentElement;
 
     // Eventos
     this.form.addEventListener("submit", e => this.handleSubmit(e));
