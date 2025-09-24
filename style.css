@@ -1,9 +1,33 @@
-/* Pequenos ajustes visuais */
+/* Fonte base */
 body {
-  font-family: 'Manrope', sans-serif;
-  transition: background 0.3s, color 0.3s;
+  font-family: 'Syne', 'Work Sans', 'Montserrat', sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  color: #111827;
+  transition: background 5s ease-in-out, color 0.3s ease-in-out;
 }
 
+/* Gradiente claro */
+body {
+  background: #e0eafc;  /* fallback */
+  background: -webkit-linear-gradient(to right, #e0eafc, #cfdef3);
+  background: linear-gradient(to right, #e0eafc, #cfdef3);
+}
+
+/* Gradiente escuro */
+.dark body {
+  background: #0f0c29;  /* fallback */
+  background: -webkit-linear-gradient(to right, #24243e, #302b63, #0f0c29);
+  background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+}
+
+/* Inputs e botões herdando fonte */
+input, select, button {
+  font-family: inherit;
+}
+
+/* Botões com transição */
 button {
   transition: all 0.2s ease-in-out;
 }

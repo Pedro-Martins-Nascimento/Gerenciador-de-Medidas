@@ -1,18 +1,27 @@
 <!DOCTYPE html>
-<html class="dark" lang="pt-BR">
+<html lang="pt-BR">
 <head>
   <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gerenciamento de Medidas</title>
 
-  <!-- Tailwind -->
+  <!-- Preserva tema salvo (evita flash) -->
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (saved === 'dark' || (!saved && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
+
+  <!-- Tailwind (CDN) -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
-  <!-- Fontes e ícones -->
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-
-  <!-- Configuração Tailwind -->
+  <!-- Tailwind config + fontes -->
   <script id="tailwind-config">
     tailwind.config = {
       darkMode: "class",
@@ -33,57 +42,71 @@
             "danger": "#dc3545",
           },
           fontFamily: {
-            "display": ["Manrope", "sans-serif"]
-          },
-        },
-      },
+            display: ["Syne", "Work Sans", "Montserrat", "sans-serif"]
+          }
+        }
+      }
     }
   </script>
 
-  <!-- CSS Custom -->
+  <!-- Google Fonts (Syne + Work Sans + Montserrat) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Syne:wght@400..800&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+  <!-- Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+
+  <!-- CSS custom -->
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
-  <div class="flex flex-col items-center min-h-screen w-full p-4 sm:p-6 lg:p-8">
+<body class="font-display text-text-light dark:text-text-dark">
 
+  <!-- ===== BACKGROUND LAYERS (usadas para animação) ===== -->
+  <!-- ficam atrás do conteúdo e são controladas via JS/CSS -->
+  <div id="bg-light" aria-hidden="true"></div>
+  <div id="bg-dark" aria-hidden="true"></div>
+
+  <div class="flex flex-col items-center min-h-screen w-full p-4 sm:p-6 lg:p-8">
     <!-- Header -->
     <header class="w-full max-w-5xl mb-12 flex justify-center items-center relative">
       <h1 class="text-3xl sm:text-4xl font-bold">Gerenciamento de Medidas</h1>
+
       <div class="absolute right-0">
-        <button id="theme-toggle"
+        <!-- Theme toggle -->
+        <button id="theme-toggle" aria-label="Alternar tema"
           class="relative inline-flex items-center h-8 rounded-full w-14 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-          <span class="sr-only">Alternar tema</span>
           <span class="absolute inset-0 bg-surface-light dark:bg-surface-dark rounded-full border border-border-light dark:border-border-dark"></span>
+
+          <!-- Indicador (bolinha) -->
           <span id="toggle-indicator"
-            class="absolute left-1 top-1 inline-block w-6 h-6 bg-primary rounded-full transform transition-transform duration-300 ease-in-out dark:translate-x-6 flex items-center justify-center text-white dark:text-text-dark">
-            <span class="material-symbols-outlined text-sm dark:hidden">light_mode</span>
-            <span class="material-symbols-outlined text-sm hidden dark:inline">dark_mode</span>
+            class="absolute left-1 top-1 inline-block w-6 h-6 bg-primary rounded-full transform transition-transform duration-300 ease-in-out flex items-center justify-center text-white">
+            <span id="toggle-icon" class="material-symbols-outlined text-sm">light_mode</span>
           </span>
         </button>
       </div>
     </header>
 
-    <!-- Conteúdo principal -->
-    <main class="w-full max-w-3xl bg-surface-light dark:bg-surface-dark rounded-xl shadow p-6 sm:p-8">
-
-      <!-- Formulário -->
+    <!-- Main -->
+    <main class="w-full max-w-3xl bg-surface-light dark:bg-surface-dark rounded-xl shadow p-6 sm:p-8 relative z-10">
+      <!-- Form -->
       <section class="mb-6">
         <h3 class="text-2xl font-bold mb-6">Adicionar Nova Medida</h3>
         <form id="measurement-form" class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
           <div>
             <label for="measurement-name" class="block text-sm mb-1">Nome da medida</label>
             <input id="measurement-name" type="text" placeholder="ex: Cintura"
-              class="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark" />
+              class="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2" />
           </div>
           <div>
             <label for="measurement-value" class="block text-sm mb-1">Valor</label>
             <input id="measurement-value" type="number" step="0.1" placeholder="ex: 75.5"
-              class="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark" />
+              class="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2" />
           </div>
           <div>
             <label for="measurement-unit" class="block text-sm mb-1">Unidade</label>
             <select id="measurement-unit"
-              class="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark">
+              class="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2">
               <option>cm</option>
               <option>mm</option>
               <option>pol</option>
@@ -100,7 +123,7 @@
 
       <hr class="border-t border-border-light dark:border-border-dark my-8"/>
 
-      <!-- Filtros (inicialmente oculto) -->
+      <!-- Filtros (escondidos até ter dados) -->
       <section id="filters-section" class="hidden">
         <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
           <input id="filter-name" type="text" placeholder="Pesquisar nome..."
@@ -115,33 +138,35 @@
             <option value="pol">pol</option>
           </select>
           <button id="clear-filters-btn"
-            class="w-full bg-subtle-light dark:bg-subtle-dark text-text-light dark:text-text-dark font-bold py-2 px-4 rounded-lg hover:bg-opacity-90 transition-colors">
+            class="w-full bg-primary text-white font-bold py-2 px-4 rounded-lg hover:bg-opacity-90 transition-colors">
             Limpar Filtros
           </button>
         </div>
-
-        <!-- Estado vazio -->
-        <div id="empty-state" class="text-center py-8 hidden">
-          <p class="text-subtle-light dark:text-subtle-dark">Nenhuma medida cadastrada ainda.</p>
-        </div>
-
-        <!-- Tabela -->
-        <div id="table-container">
-          <table class="w-full text-left">
-            <thead>
-              <tr>
-                <th class="p-3 text-sm font-semibold uppercase">Nome</th>
-                <th class="p-3 text-sm font-semibold uppercase">Valor</th>
-                <th class="p-3 text-sm font-semibold uppercase">Unidade</th>
-                <th class="p-3 text-sm font-semibold uppercase text-right">Ações</th>
-              </tr>
-            </thead>
-            <tbody id="measurement-table-body"></tbody>
-          </table>
-        </div>
       </section>
+
+      <!-- Estado vazio -->
+      <div id="empty-state" class="text-center py-8 hidden">
+        <p class="text-subtle-light dark:text-subtle-dark">Nenhuma medida cadastrada ainda.</p>
+      </div>
+
+      <!-- Tabela -->
+      <div id="table-container" class="hidden">
+        <table class="w-full text-left">
+          <thead>
+            <tr>
+              <th class="p-3 text-sm font-semibold uppercase">Nome</th>
+              <th class="p-3 text-sm font-semibold uppercase">Valor</th>
+              <th class="p-3 text-sm font-semibold uppercase">Unidade</th>
+              <th class="p-3 text-sm font-semibold uppercase text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="measurement-table-body"></tbody>
+        </table>
+      </div>
     </main>
   </div>
+
+  <!-- Script -->
   <script src="script.js"></script>
 </body>
 </html>
