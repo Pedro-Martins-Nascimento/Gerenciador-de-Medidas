@@ -77,6 +77,8 @@
   <!-- Título centralizado -->
   <h1 class="text-3xl sm:text-4xl font-bold text-center">Gerenciamento de Medidas</h1>
 
+  
+
   <!-- Botão de tema -->
   <div class="mt-2 sm:mt-0 sm:absolute sm:right-0">
     <button id="theme-toggle" aria-label="Alternar tema"
@@ -104,13 +106,14 @@
       <form id="measurement-form" class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
         <div>
           <label for="measurement-name" class="block text-sm mb-1">Nome da medida</label>
-          <input id="measurement-name" type="text" placeholder="ex: Cintura"
+          <input id="measurement-name" type="text" placeholder="Cintura"
             class="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2" />
         </div>
         <div>
           <label for="measurement-value" class="block text-sm mb-1">Valor</label>
-          <input id="measurement-value" type="number" step="0.1" placeholder="ex: 75.5"
-            class="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2" />
+          <input id="measurement-value" type="number" step="0.01" min="0" maxlength="10" placeholder="75,5"
+            class="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2"
+            oninput="if(this.value.length>10)this.value=this.value.slice(0,10);if(this.value<0)this.value=0;" />
         </div>
         <div>
           <label for="measurement-unit" class="block text-sm mb-1">Unidade</label>
@@ -133,22 +136,25 @@
     <hr class="border-t border-border-light dark:border-border-dark my-8"/>
 
     <!-- Filtros -->
-    <section id="filters-section" class="hidden mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-      <input id="filter-name" type="text" placeholder="Pesquisar nome..."
-        class="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-4 py-2"/>
-      <input id="filter-value" type="number" placeholder="Pesquisar valor..."
-        class="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-4 py-2"/>
-      <select id="filter-unit"
-        class="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-4 py-2">
-        <option value="Todas">Todas</option>
-        <option value="cm">cm</option>
-        <option value="mm">mm</option>
-        <option value="pol">pol</option>
-      </select>
-      <button id="clear-filters-btn"
-        class="w-full bg-primary text-white font-bold py-2 px-4 rounded-lg hover:bg-opacity-90 transition-colors">
-        Limpar Filtros
-      </button>
+    <section id="filters-section" class="hidden mb-6">
+      <h3 class="text-2xl font-bold mb-6">Pesquisa</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+        <input id="filter-name" type="text" placeholder="Pesquisar nome..."
+          class="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-4 py-2"/>
+        <input id="filter-value" type="number" placeholder="Pesquisar valor..."
+          class="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-4 py-2"/>
+        <select id="filter-unit"
+          class="rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-4 py-2">
+          <option value="Todas">Todas</option>
+          <option value="cm">cm</option>
+          <option value="mm">mm</option>
+          <option value="pol">pol</option>
+        </select>
+        <button id="clear-filters-btn"
+          class="w-full bg-primary text-white font-bold py-2 px-4 rounded-lg hover:bg-opacity-90 transition-colors">
+          Limpar Filtros
+        </button>
+      </div>
     </section>
 
     <!-- Estado vazio -->
@@ -174,6 +180,18 @@
 
   </main>
 
+  <!-- Toast -->
+  <div id="toast" class="hidden fixed top-5 right-5 max-w-xs w-80 z-50 bg-gray-100 border border-gray-300 shadow-lg rounded-lg p-4 flex flex-col gap-2 animate-fade-in-down">
+    <div class="flex justify-between items-start">
+      <p class="font-bold text-gray-900 card-heading">Aviso</p>
+      <button onclick="closeToast()" class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <p class="text-bold text-gray-900 card-content">Mensagem</p>
+  </div>
   <!-- Script -->
   <script src="src/script.js"></script>
 </body>

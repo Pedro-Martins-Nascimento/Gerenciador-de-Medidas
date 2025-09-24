@@ -20,14 +20,14 @@ class MedidaController {
     this.medidas.push(medida);
     this.salvarMedidas();
     this.view.render(this.medidas);
-    this.view.showMessage("Medida adicionada com sucesso!", "success");
+    showToast("Medida adicionada com sucesso!");
   }
 
   remover(index) {
     this.medidas.splice(index, 1);
     this.salvarMedidas();
     this.view.render(this.medidas);
-    this.view.showMessage("Medida removida.", "danger");
+    showToast("Medida removida.");
   }
 
   salvarMedidas() {
@@ -64,8 +64,6 @@ class MedidaView {
     this.filterValue = document.getElementById("filter-value");
     this.filterUnit = document.getElementById("filter-unit");
     this.clearBtn = document.getElementById("clear-filters-btn");
-    this.messageBox = document.getElementById("form-message");
-
 
     // Background layers
     this.bgLight = document.getElementById("bg-light");
@@ -88,41 +86,23 @@ class MedidaView {
     this.initThemeState();
   }
 
-  showMessage(text, type="info") {
-    if (!this.messageBox) return;
-
-    const colors = {
-      success: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-      danger: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-      info: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
-    };
-
-    // reaplica classes base
-  this.messageBox.className = "mb-4 p-3 rounded transition-all duration-300 text-center font-medium";
-  colors[type].split(" ").forEach(cls => this.messageBox.classList.add(cls));
-    this.messageBox.textContent = text;
-    this.messageBox.classList.remove("hidden");
-
-    if (this.messageTimeout) clearTimeout(this.messageTimeout);
-    this.messageTimeout = setTimeout(() => {
-      this.messageBox.classList.add("hidden");
-    }, 3000);
-  }
-
-
-
   initThemeState() {
     const saved = localStorage.getItem('theme');
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     const isDark = (saved === 'dark') || (!saved && prefersDark) || this.htmlEl.classList.contains('dark');
     if (isDark) this.htmlEl.classList.add('dark'); else this.htmlEl.classList.remove('dark');
 
-    this.bgLight.style.opacity = isDark ? '0' : '1';
-    this.bgDark.style.opacity = isDark ? '1' : '0';
+    // inicializa opacidades (se tiver bg layers)
+    if (this.bgLight && this.bgDark) {
+      this.bgLight.style.opacity = isDark ? '0' : '1';
+      this.bgDark.style.opacity = isDark ? '1' : '0';
+    }
+
     this.updateToggleVisual(isDark, false);
   }
 
   updateToggleVisual(isDark, persist = true) {
+    if (!this.toggleIndicator || !this.toggleIcon) return;
     if (isDark) {
       this.toggleIndicator.classList.add('translate-x-6');
       this.toggleIcon.textContent = 'dark_mode';
@@ -136,8 +116,12 @@ class MedidaView {
   toggleTheme() {
     const nowDark = !this.htmlEl.classList.contains('dark');
     if (nowDark) this.htmlEl.classList.add('dark'); else this.htmlEl.classList.remove('dark');
-    this.bgLight.style.opacity = nowDark ? '0' : '1';
-    this.bgDark.style.opacity = nowDark ? '1' : '0';
+
+    if (this.bgLight && this.bgDark) {
+      this.bgLight.style.opacity = nowDark ? '0' : '1';
+      this.bgDark.style.opacity = nowDark ? '1' : '0';
+    }
+
     this.updateToggleVisual(nowDark, true);
   }
 
@@ -148,21 +132,21 @@ class MedidaView {
     const unidade = document.getElementById("measurement-unit").value;
 
     if (!nome || !valor) {
-      this.showMessage("Preencha todos os campos!", "danger");
+      showToast("Preencha todos os campos!", { type: 'danger' });
       return;
     }
 
     // Limite 15 caracteres, apenas letras no nome
     const nomeRegex = /^[A-Za-zÀ-ú ]{1,15}$/;
     if (!nomeRegex.test(nome)) {
-      this.showMessage("Nome inválido! Apenas letras (máx. 15).", "danger");
+      showToast("Nome inválido! Apenas letras (máx. 15).", { type: 'danger' });
       return;
     }
 
     // Valor numérico
     const valorNum = parseFloat(valor);
     if (isNaN(valorNum)) {
-      this.showMessage("Valor inválido! Digite apenas números.", "danger");
+      showToast("Valor inválido! Digite apenas números.", { type: 'danger' });
       return;
     }
 
@@ -205,7 +189,7 @@ class MedidaView {
 
   applyFilters() {
     const filtros = {
-      nome: this.filterName ? this.filterName.value : '',
+      nome: this.filterName ? this.filterName.value.trim() : '',
       valor: this.filterValue ? this.filterValue.value : '',
       unidade: this.filterUnit ? this.filterUnit.value : 'Todas',
     };
@@ -230,6 +214,70 @@ class MedidaView {
     if (this.filterValue) this.filterValue.value = "";
     if (this.filterUnit) this.filterUnit.value = "Todas";
     this.render(this.controller.medidas);
+  }
+}
+
+function showToast(message, opts = {}) {
+  // opts: { type: 'info'|'success'|'danger', link: '#', duration: ms }
+  const toast = document.getElementById("toast");
+  if (!toast) {
+    console.warn("Toast não encontrado (id='toast').");
+    return;
+  }
+
+  const duration = opts.duration || 4000;
+  const type = opts.type || 'info';
+  const link = opts.link || '#';
+
+  // conteúdo
+  const contentEl = toast.querySelector(".card-content");
+  if (contentEl) contentEl.textContent = message;
+  const linkEl = toast.querySelector(".card-link");
+  if (linkEl) {
+    linkEl.setAttribute("href", link);
+    linkEl.style.display = opts.showLink === false ? "none" : ""; // opcional
+  }
+
+  // classes de cor (se quiser alterar visual por tipo)
+  toast.classList.remove("toast-success", "toast-danger", "toast-info");
+  if (type === 'success') toast.classList.add("toast-success");
+  if (type === 'danger') toast.classList.add("toast-danger");
+  if (type === 'info') toast.classList.add("toast-info");
+
+  // garante que o elemento esteja visível, ativa animação
+  toast.classList.remove("hidden", "hide");
+  // force reflow para reiniciar animação
+  void toast.offsetWidth;
+  toast.classList.add("show");
+
+  // cancela timeout anterior se existir
+  if (toast._timeout) {
+    clearTimeout(toast._timeout);
+  }
+  toast._timeout = setTimeout(() => {
+    closeToast();
+  }, duration);
+}
+
+function closeToast() {
+  const toast = document.getElementById("toast");
+  if (!toast) return;
+
+  // remove classe de entrada e adiciona saída
+  toast.classList.remove("show");
+  toast.classList.add("hide");
+
+  // quando animação de saída terminar, adiciona hidden
+  const onEnd = () => {
+    toast.classList.add("hidden");
+    toast.classList.remove("hide");
+    toast.removeEventListener("animationend", onEnd);
+  };
+  toast.addEventListener("animationend", onEnd);
+
+  if (toast._timeout) {
+    clearTimeout(toast._timeout);
+    toast._timeout = null;
   }
 }
 

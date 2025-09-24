@@ -1,6 +1,23 @@
+/* Garante que a última linha da tabela fique visível mesmo com rolagem lateral e barra de rolagem em telas pequenas */
+#table-container {
+  padding-bottom: clamp(1.2rem, 3vw, 2.2rem);
+  overflow-x: auto;
+}
+
+@media (max-width: 640px) {
+  #table-container {
+    max-height: 60vh;
+    min-width: 320px;
+    padding-bottom: clamp(1.8rem, 5vw, 2.8rem);
+    overflow-x: auto;
+  }
+  #table-container table {
+    min-width: 420px;
+  }
+}
 /* ===== Fonte base ===== */
 body {
-  font-family: 'Syne', 'Work Sans', 'Montserrat', sans-serif;
+  font-family: 'Syne', sans-serif;
   margin: 0;
   padding: 0;
   min-height: 100vh;
@@ -29,7 +46,7 @@ button {
 }
 
 #table-container::-webkit-scrollbar-thumb {
-  background-color: #6c5ce7; /* cor primary */
+  background-color: #6c5ce7; 
   border-radius: 4px;
 }
 
@@ -113,3 +130,27 @@ button {
     font-size: 0.95rem;
   }
 }
+
+/* Animações do toast */
+@keyframes toast-in {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+@keyframes toast-out {
+  from { transform: translateY(0); opacity: 1; }
+  to   { transform: translateY(20px); opacity: 0; }
+}
+
+/* classes usadas pelo JS */
+#toast.show {
+  animation: toast-in 300ms cubic-bezier(.2,.9,.2,1) forwards;
+}
+#toast.hide {
+  animation: toast-out 220ms cubic-bezier(.2,.9,.2,1) forwards;
+}
+
+/* variações visuais por tipo (opcional) */
+#toast.toast-success { background: #4e3dc9; border-color: #212121; }
+#toast.toast-danger  { background: #4e3dc9; border-color: #212121; }
+#toast.toast-info    { background: #4e3dc9; border-color: #212121; }
+
