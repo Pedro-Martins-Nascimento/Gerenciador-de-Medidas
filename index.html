@@ -1,13 +1,18 @@
 <!DOCTYPE html>
+<!--
+  Gerenciador de Medidas - Interface principal
+  Estrutura baseada em HTML5, TailwindCSS e integração com JS (MVC)
+  Comentários profissionais para facilitar manutenção e entendimento.
+-->
 <html lang="pt-BR">
 <head>
-  <!-- Favicon PNG -->
+  <!-- Ícone da aplicação -->
   <link rel="icon" type="image/svg+xml" href="icon.svg" />
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gerenciamento de Medidas</title>
 
-  <!-- Preserva tema salvo (evita flash) -->
+  <!-- Script para aplicar tema salvo antes do carregamento (evita flash) -->
   <script>
     (function() {
       const saved = localStorage.getItem('theme');
@@ -20,10 +25,10 @@
     })();
   </script>
 
-  <!-- Tailwind (CDN) -->
+  <!-- TailwindCSS via CDN -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
-  <!-- Tailwind config + fontes -->
+  <!-- Configuração customizada do Tailwind e fontes -->
   <script id="tailwind-config">
     tailwind.config = {
       darkMode: "class",
@@ -51,13 +56,14 @@
     }
   </script>
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Montserrat, Syne, Work Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Syne:wght@400..800&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
-  <!-- Material Symbols -->
+  <!-- Ícones do Google Material Symbols -->
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+  <!-- Estilos customizados do projeto -->
   <link rel="stylesheet" href="style.css">
 
   
@@ -67,19 +73,25 @@
 
 
 
-  <!-- Background layers (para animação de dark mode) -->
+  <!--
+    Camadas de fundo para transição visual entre temas (light/dark)
+    Controladas via JS para efeito suave.
+  -->
   <div id="bg-light" class="fixed inset-0 z-0 bg-gradient-to-r from-[#e0eafc] to-[#cfdef3] transition-all duration-500"></div>
   <div id="bg-dark" class="fixed inset-0 z-0 bg-gradient-to-r from-[#24243e] via-[#302b63] to-[#0f0c29] opacity-0 transition-all duration-500"></div>
 
 
 
+  <!--
+    Cabeçalho principal: título e botão de alternância de tema
+    Layout responsivo e centralizado
+  -->
   <header class="w-full max-w-5xl mb-12 relative z-10 flex flex-col items-center sm:flex-row sm:justify-center">
-  <!-- Título centralizado -->
-  <h1 class="text-3xl sm:text-4xl font-bold text-center">Gerenciamento de Medidas</h1>
+    <h1 class="text-3xl sm:text-4xl font-bold text-center">Gerenciamento de Medidas</h1>
 
   
 
-  <!-- Botão de tema -->
+    <!-- Botão de alternância de tema (dark/light) -->
   <div class="mt-2 sm:mt-0 sm:absolute sm:right-0">
     <button id="theme-toggle" aria-label="Alternar tema"
       class="relative inline-flex items-center h-8 rounded-full w-14 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
@@ -92,15 +104,18 @@
   </div>
 </header>
 
-  <!-- Main -->
+  <!--
+    Conteúdo principal da aplicação
+    Inclui formulário, filtros, tabela e mensagens
+  -->
   <main class="w-full max-w-3xl bg-surface-light dark:bg-surface-dark rounded-xl shadow p-6 sm:p-8 relative z-10">
 
 
     
-    <!-- Mensagem -->
+  <!-- Mensagem de feedback (ex: sucesso/erro no formulário) -->
     <div id="form-message" class="hidden mb-4 p-3 rounded transition-all duration-300 text-center font-medium"></div>
 
-    <!-- Formulário -->
+  <!-- Formulário de cadastro de nova medida -->
     <section class="mb-6">
       <h3 class="text-2xl font-bold mb-6">Adicionar Nova Medida</h3>
       <form id="measurement-form" class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
@@ -135,7 +150,7 @@
 
     <hr class="border-t border-border-light dark:border-border-dark my-8"/>
 
-    <!-- Filtros -->
+  <!-- Filtros de pesquisa (nome, valor, unidade) -->
     <section id="filters-section" class="hidden mb-6">
       <h3 class="text-2xl font-bold mb-6">Pesquisa</h3>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
@@ -157,12 +172,12 @@
       </div>
     </section>
 
-    <!-- Estado vazio -->
+  <!-- Mensagem exibida quando não há medidas cadastradas -->
     <div id="empty-state" class="text-center py-8 hidden">
       <p class="text-subtle-light dark:text-subtle-dark">Nenhuma medida cadastrada ainda.</p>
     </div>
 
-    <!-- Tabela responsiva -->
+  <!-- Tabela responsiva para exibição das medidas cadastradas -->
     <div id="table-container" class="hidden overflow-x-auto max-h-[400px] overflow-y-auto">
       <table class="w-full text-left min-w-[300px] sm:min-w-full">
         <thead class="bg-surface-light dark:bg-surface-dark sticky top-0 z-10">
@@ -180,7 +195,7 @@
 
   </main>
 
-  <!-- Toast -->
+  <!-- Toast: notificação flutuante para feedback ao usuário -->
   <div id="toast" class="hidden fixed top-5 right-5 max-w-xs w-80 z-50 bg-gray-100 border border-gray-300 shadow-lg rounded-lg p-4 flex flex-col gap-2 animate-fade-in-down">
     <div class="flex justify-between items-start">
       <p class="font-bold text-gray-900 card-heading">Aviso</p>
@@ -192,7 +207,7 @@
     </div>
     <p class="text-bold text-gray-900 card-content">Mensagem</p>
   </div>
-  <!-- Script -->
+  <!-- Script principal da aplicação (MVC) -->
   <script src="src/script.js"></script>
 </body>
 </html>

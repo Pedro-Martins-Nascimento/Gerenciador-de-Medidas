@@ -1,9 +1,11 @@
-/* Garante que a última linha da tabela fique visível mesmo com rolagem lateral e barra de rolagem em telas pequenas */
+#region Tabela responsiva e usabilidade
+/* Espaço extra para garantir visualização da última linha mesmo com rolagem lateral em telas pequenas */
 #table-container {
   padding-bottom: clamp(1.2rem, 3vw, 2.2rem);
   overflow-x: auto;
 }
 
+/* Ajustes para telas pequenas (mobile) */
 @media (max-width: 640px) {
   #table-container {
     max-height: 60vh;
@@ -15,7 +17,7 @@
     min-width: 420px;
   }
 }
-/* ===== Fonte base ===== */
+/* ===== Fonte e layout base ===== */
 body {
   font-family: 'Syne', sans-serif;
   margin: 0;
@@ -30,12 +32,12 @@ input, select, button {
   font-family: inherit;
 }
 
-/* Botões com transição */
+/* Transição suave em botões */
 button {
   transition: all 0.2s ease-in-out;
 }
 
-/* ===== Scrollbar customizada ===== */
+/* ===== Scrollbar customizada para #table-container ===== */
 #table-container::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -54,13 +56,13 @@ button {
   background-color: #4e3dc9;
 }
 
-/* Firefox */
+/* Firefox: scrollbar customizada */
 #table-container {
   scrollbar-width: thin;
   scrollbar-color: #6c5ce7 transparent;
 }
 
-/* ===== Mensagens ===== */
+/* ===== Mensagens e feedback ===== */
 #form-message {
   transition: all 0.3s ease-in-out;
   font-weight: 500;
@@ -72,7 +74,7 @@ button {
   max-height: 60vh; /* limita altura máxima */
 }
 
-/* Small screens: ajusta a tabela */
+/* Small screens: ajustes finos para tabela e botões */
 @media (max-width: 640px) {
   table {
     font-size: 0.85rem;
@@ -91,6 +93,7 @@ button {
     font-size: 0.75rem;
   }
 
+  /* Botão de alternância de tema (dark/light) */
   #theme-toggle {
     width: 3.5rem;  /* 14 * 0.25rem */
     height: 2rem;   /* 8 * 0.25rem */
@@ -99,7 +102,7 @@ button {
     position: relative;
     }
 
-    /* Indicador do botão */
+  /* Indicador circular do botão de tema */
     #toggle-indicator {
     width: 1.5rem;   /* tamanho do círculo */
     height: 1.5rem;
@@ -111,27 +114,29 @@ button {
     transition: transform 0.3s ease-in-out, background-color 0.3s ease;
     }
 
-    #toggle-icon {
+  /* Ícone do botão de tema */
+  #toggle-icon {
     font-size: 0.75rem;
     line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    }
+  }
 
-    /* Em modo dark, slide para direita */
+  /* Em modo dark, indicador desliza para direita */
     .dark #toggle-indicator {
     transform: translateX(1.5rem); /* distancia igual à largura do indicador + padding */
     }
 }
 
+/* Ajuste de ícone em telas grandes */
 @media (min-width: 1024px) {
   #toggle-icon {
     font-size: 0.95rem;
   }
 }
 
-/* Animações do toast */
+/* ===== Animações do toast (notificação) ===== */
 @keyframes toast-in {
   from { transform: translateY(20px); opacity: 0; }
   to   { transform: translateY(0); opacity: 1; }
@@ -141,7 +146,7 @@ button {
   to   { transform: translateY(20px); opacity: 0; }
 }
 
-/* classes usadas pelo JS */
+/* Classes de animação controladas via JavaScript */
 #toast.show {
   animation: toast-in 300ms cubic-bezier(.2,.9,.2,1) forwards;
 }
@@ -149,7 +154,7 @@ button {
   animation: toast-out 220ms cubic-bezier(.2,.9,.2,1) forwards;
 }
 
-/* variações visuais por tipo (opcional) */
+/* Variações visuais do toast por tipo de mensagem */
 #toast.toast-success { background: #4e3dc9; border-color: #212121; }
 #toast.toast-danger  { background: #4e3dc9; border-color: #212121; }
 #toast.toast-info    { background: #4e3dc9; border-color: #212121; }
