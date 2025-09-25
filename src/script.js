@@ -122,9 +122,15 @@ class VisaoMedidas {
 
     // Listeners para eventos de interação do usuário
     this.formulario.addEventListener("submit", e => this.tratarEnvioFormulario(e));
-    if (this.filtroNome) this.filtroNome.addEventListener("input", () => this.aplicarFiltros());
-    if (this.filtroValor) this.filtroValor.addEventListener("input", () => this.aplicarFiltros());
-    if (this.filtroUnidade) this.filtroUnidade.addEventListener("change", () => this.aplicarFiltros());
+        if (this.filtroNome) this.filtroNome.addEventListener("input", () => this.aplicarFiltros());
+        if (this.filtroValor) this.filtroValor.addEventListener("input", () => {
+          // Troca vírgula por ponto no filtro de valor
+          if (this.filtroValor.value.includes(',')) {
+            this.filtroValor.value = this.filtroValor.value.replace(',', '.');
+          }
+          this.aplicarFiltros();
+        });
+        if (this.filtroUnidade) this.filtroUnidade.addEventListener("change", () => this.aplicarFiltros());
     if (this.botaoLimpar) this.botaoLimpar.addEventListener("click", () => this.limparFiltros());
     if (this.botaoTema) this.botaoTema.addEventListener("click", () => this.alternarTema());
 
@@ -242,19 +248,171 @@ class VisaoMedidas {
     medidas.forEach((medida, indice) => {
       const linha = document.createElement("tr");
       linha.classList.add("border-t", "border-border-light", "dark:border-border-dark");
-      linha.innerHTML = `
-        <td class="p-2 sm:p-3 text-center">${medida.nome}</td>
-        <td class="p-2 sm:p-3 text-center">${medida.valor}</td>
-        <td class="p-2 sm:p-3 text-center">${medida.unidade}</td>
-        <td class="p-2 sm:p-3 text-center w-12">
-          <button class="bg-danger text-white px-2 py-1 rounded-md hover:bg-red-700 transition font-bold uppercase text-sm sm:text-base" data-indice="${indice}">
-            X
-          </button>
-        </td>
-      `;
-      // Listener para remoção de medida
-      linha.querySelector("button").addEventListener("click", () => this.controlador.remover(indice));
+
+      // Criação das células editáveis
+      // Nome
+      const tdNome = document.createElement("td");
+      tdNome.className = "p-2 sm:p-3 text-center cursor-pointer";
+      tdNome.textContent = medida.nome;
+      tdNome.addEventListener("dblclick", () => this.editarCelula(tdNome, medida, indice, "nome"));
+
+      // Valor
+      const tdValor = document.createElement("td");
+      tdValor.className = "p-2 sm:p-3 text-center cursor-pointer";
+      tdValor.textContent = medida.valor;
+      tdValor.addEventListener("dblclick", () => this.editarCelula(tdValor, medida, indice, "valor"));
+
+      // Unidade
+      const tdUnidade = document.createElement("td");
+      tdUnidade.className = "p-2 sm:p-3 text-center cursor-pointer";
+      tdUnidade.textContent = medida.unidade;
+      tdUnidade.addEventListener("dblclick", () => this.editarCelula(tdUnidade, medida, indice, "unidade"));
+
+      // Botão remover
+      const tdRemover = document.createElement("td");
+      tdRemover.className = "p-2 sm:p-3 text-center w-12";
+      const botaoRemover = document.createElement("button");
+      botaoRemover.className = "bg-danger text-white px-2 py-1 rounded-md hover:bg-red-700 transition font-bold uppercase text-sm sm:text-base";
+      botaoRemover.textContent = "X";
+      botaoRemover.setAttribute("data-indice", indice);
+      botaoRemover.addEventListener("click", () => this.controlador.remover(indice));
+      tdRemover.appendChild(botaoRemover);
+
+      linha.appendChild(tdNome);
+      linha.appendChild(tdValor);
+      linha.appendChild(tdUnidade);
+      linha.appendChild(tdRemover);
       this.corpoTabela.appendChild(linha);
+    });
+  }
+
+  /**
+   * Permite editar uma célula da tabela ao dar duplo clique.
+   * @param {HTMLElement} celula Célula da tabela
+   * @param {Medida} medida Objeto medida
+   * @param {number} indice Índice da medida
+   * @param {string} campo Campo a ser editado (nome, valor, unidade)
+   */
+    editarCelula(celula, medida, indice, campo) {
+    // Evita múltiplas edições simultâneas
+      if (celula.querySelector('input, select')) return;
+
+
+      let input;
+      // Classes para manter o estilo do input principal e adaptar ao tema
+      const classesInput = [
+        "w-full",
+        "rounded-lg",
+        "border",
+        "border-border-light",
+        "dark:border-border-dark",
+        "bg-background-light",
+        "dark:bg-background-dark",
+        "text-text-light",
+        "dark:text-text-dark",
+        "px-1",
+        "py-1",
+        "focus:outline-none",
+        "focus:ring-2",
+        "focus:ring-primary",
+        "transition-colors"
+      ].join(" ");
+
+      if (campo === "nome") {
+        input = document.createElement("input");
+        input.type = "text";
+        input.value = medida.nome;
+        input.maxLength = 15;
+        input.className = classesInput;
+        input.style.minWidth = "0";
+      } else if (campo === "valor") {
+        input = document.createElement("input");
+        input.type = "number";
+        input.step = "0.01";
+        input.min = 0;
+        input.maxLength = 10;
+        input.value = medida.valor;
+        input.className = classesInput;
+        input.style.minWidth = "0";
+      } else if (campo === "unidade") {
+        input = document.createElement("select");
+        ["cm", "mm", "pol"].forEach(opt => {
+          const option = document.createElement("option");
+          option.value = opt;
+          option.textContent = opt;
+          if (medida.unidade === opt) option.selected = true;
+          input.appendChild(option);
+        });
+        input.className = classesInput;
+        input.style.minWidth = "0";
+      }
+
+
+      // Ajusta largura fixa e responsiva para o input inline
+      input.style.width = "80px";
+      input.style.minWidth = "80px";
+      input.style.maxWidth = "100%";
+      input.style.boxSizing = "border-box";
+      input.style.margin = "0 auto";
+      input.style.display = "block";
+      input.style.padding = "0 0.5rem";
+      input.style.height = "2.25rem";
+      input.style.borderRadius = "0.5rem";
+
+      // Substitui conteúdo da célula pelo input
+      celula.textContent = "";
+      celula.appendChild(input);
+      input.focus();
+      input.select && input.select();
+
+    // Função para salvar edição
+    const salvar = () => {
+      let novoValor = input.value;
+      if (campo === "nome") {
+        novoValor = novoValor.trim();
+        const regexNome = /^[A-Za-zÀ-ú ]{1,15}$/;
+        if (!novoValor) {
+          exibirToast("Preencha o nome!", { type: 'danger' });
+          input.focus();
+          return;
+        }
+        if (!regexNome.test(novoValor)) {
+          exibirToast("Nome inválido! Apenas letras (máx. 15).", { type: 'danger' });
+          input.focus();
+          return;
+        }
+        this.controlador.medidas[indice].nome = novoValor;
+      } else if (campo === "valor") {
+        if (!novoValor) {
+          exibirToast("Preencha o valor!", { type: 'danger' });
+          input.focus();
+          return;
+        }
+        const valorNumerico = parseFloat(novoValor);
+        if (isNaN(valorNumerico)) {
+          exibirToast("Valor inválido! Digite apenas números.", { type: 'danger' });
+          input.focus();
+          return;
+        }
+        this.controlador.medidas[indice].valor = valorNumerico;
+      } else if (campo === "unidade") {
+        this.controlador.medidas[indice].unidade = novoValor;
+      }
+      this.controlador.salvarMedidas();
+      this.renderizar(this.controlador.medidas);
+      exibirToast("Medida atualizada com sucesso!", { type: 'success' });
+    };
+
+    // Salva ao sair do campo
+    input.addEventListener("blur", salvar);
+    // Salva ao pressionar Enter
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        salvar();
+      } else if (e.key === "Escape") {
+        this.renderizar(this.controlador.medidas);
+      }
     });
   }
 
@@ -376,7 +534,16 @@ function fecharToast() {
   }
 }
 
+
 // ===== Inicialização da aplicação =====
 document.addEventListener("DOMContentLoaded", () => {
   new ControladorMedidas();
+  // Garante que o botão X do toast funcione mesmo se o escopo mudar
+  const btnFecharToast = document.querySelector('#toast button');
+  if (btnFecharToast) {
+    btnFecharToast.onclick = fecharToast;
+  }
 });
+
+// Garante que fecharToast esteja disponível globalmente para o onclick do HTML
+window.fecharToast = fecharToast;

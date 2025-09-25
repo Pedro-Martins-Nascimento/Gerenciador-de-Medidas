@@ -1,3 +1,14 @@
+/* Garante que a tabela mantenha o layout fixo ao editar */
+#table-container table {
+  table-layout: fixed;
+}
+#table-container th,
+#table-container td:not(:last-child) {
+  min-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 #region Tabela responsiva e usabilidade
 /* Espaço extra para garantir visualização da última linha mesmo com rolagem lateral em telas pequenas */
 #table-container {
